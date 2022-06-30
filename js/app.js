@@ -25,6 +25,8 @@ const createNewLink = (href, text) => {
 	return newLink;
 };
 
+const createText = content => document.createTextNode(content)
+
 const updateRepositoriesList = (repos) => {
 	const repositoriesList = document.getElementById("repositoriesList");
 
@@ -33,13 +35,19 @@ const updateRepositoriesList = (repos) => {
 	repos &&
 		repos.map &&
 		repos.map((repo) => {
-			let newLink = createNewLink(
-				`https://grazzianixf.github.io/${repo.name}`,
-				repo.name
-			);
-
 			let newListItem = createNewListItem();
-			newListItem.appendChild(newLink);
+			if (repo.has_pages) {
+				let newLink = createNewLink(
+					`https://grazzianixf.github.io/${repo.name}`,
+					repo.name
+				);
+
+				newListItem.appendChild(newLink);
+			} else {
+				let newText = createText(repo.name);
+
+				newListItem.appendChild(newText);
+			}
 
 			repositoriesList.appendChild(newListItem);
 		});
