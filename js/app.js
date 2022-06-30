@@ -8,22 +8,30 @@ const updateMessage = (content) => {
 	document.getElementById("spanMessage").textContent = content;
 };
 
-const createNewListItem = () => {
-	let newListItem = document.createElement("li");
-
-	return newListItem;
+const createNewDivListItem = () => {
+	let div = document.createElement("div");
+	div.setAttribute("class", "divDoLi");
+	return div;
 };
 
-const createNewLink = (href, text) => {
+const createNewListItem = () => document.createElement("li");
+
+const createNewLink = (href) => {
 	let newLink = document.createElement("a");
 	newLink.href = href;
-	newLink.text = text;
 	newLink.target = "_blank";
 
 	return newLink;
 };
 
 const createText = (content) => document.createTextNode(content);
+
+const createIconLink = (_) =>
+	Object.assign(document.createElement("img"), {
+		src: "assets/arrow-square-out-fill.png",
+		width: "20",
+		height: "20",
+	});
 
 const updateRepositoriesList = (repos) => {
 	const repositoriesList = document.getElementById("repositoriesList");
@@ -32,24 +40,27 @@ const updateRepositoriesList = (repos) => {
 		repos.map &&
 		repos.map((repo) => {
 			let newListItem = createNewListItem();
+
+			let newDivListItem = createNewDivListItem();
+			newListItem.appendChild(newDivListItem);
+
+			let newText = createText(repo.name);
+
+			newDivListItem.appendChild(newText);
+
 			if (repo.has_pages) {
-				let newLink = createNewLink(
-					`${URL_GITHUB_IO}/${repo.name}`,
-					repo.name
-				);
+				let newLink = createNewLink(`${URL_GITHUB_IO}/${repo.name}`);
 
-				newListItem.appendChild(newLink);
-			} else {
-				let newText = createText(repo.name);
+				newLink.appendChild(createIconLink());
 
-				newListItem.appendChild(newText);
+				newDivListItem.appendChild(newLink);
 			}
 
 			repositoriesList.appendChild(newListItem);
 		});
 };
 
-const handleError = (msg, error) => {
+const handleDefaultError = (msg, error) => {
 	console.error(error);
 
 	let messageError = msg + " " + (error?.message ? error?.message : error);
@@ -57,11 +68,11 @@ const handleError = (msg, error) => {
 	updateMessage(messageError);
 };
 
-const handleResponse = (response) => {
+const handleDefaultResponse = (response) => {
 	if (response.status !== 200) {
 		console.log(`Response Status: `, response.status);
 
-      // TODO tratar caso não seja json
+		// TODO tratar caso não seja json
 		return response.json().then((result) => Promise.reject(result));
 	}
 
@@ -74,12 +85,14 @@ const loadData = () => {
 	updateMessage(MSG_UPDATE_REPOSITORIES_LIST);
 
 	fetch(url)
-		.then((response) => handleResponse(response))
+		.then((response) => handleDefaultResponse(response))
 		.then((repos) => {
 			updateRepositoriesList(repos);
 			updateMessage("");
 		})
-		.catch((error) => handleError(MSG_ERROR_UPDATE_REPOSITORIES_LIST, error));
+		.catch((error) =>
+			handleDefaultError(MSG_ERROR_UPDATE_REPOSITORIES_LIST, error)
+		);
 };
 
 const setupEvents = (_) => {

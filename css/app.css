@@ -1,0 +1,10 @@
+.divDoLi {
+   display: flex;   
+   align-items: center;
+   min-height: 3vh;
+   justify-content: space-between;
+}
+
+.lista {
+   margin-top: 0;
+}
