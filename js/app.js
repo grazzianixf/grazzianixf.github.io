@@ -1,17 +1,15 @@
-const startLoading = (_) => {
-	// TODO
-	// desabilitar todos os componentes do formulario que estão habilitados
-	// colocar a msg passada como parametro em um span entre o requestBody e responseBody. Sendo que esse span só aparece quando tiver alguma msg nele
+const URL_REPOS = "https://api.github.com/users/grazzianixf/repos";
+const URL_GITHUB_IO = "https://grazzianixf.github.io";
+const MSG_UPDATE_REPOSITORIES_LIST = "Atualizando lista de repositórios...";
+const MSG_ERROR_UPDATE_REPOSITORIES_LIST =
+	"Erro ao atualizar lista de repositórios.";
+
+const updateMessage = (content) => {
+	document.getElementById("spanMessage").textContent = content;
 };
 
-const stopLoading = (_) => {
-	// TODO
-	// habilitar todos os campso do formulario, exceto o responseBody que deve ser sempre disabled
-};
-
-const createNewListItem = (content) => {
+const createNewListItem = () => {
 	let newListItem = document.createElement("li");
-	// newListItem.innerHTML = content;
 
 	return newListItem;
 };
@@ -20,17 +18,15 @@ const createNewLink = (href, text) => {
 	let newLink = document.createElement("a");
 	newLink.href = href;
 	newLink.text = text;
+	newLink.target = "_blank";
 
-	console.log(`newLink`, newLink);
 	return newLink;
 };
 
-const createText = content => document.createTextNode(content)
+const createText = (content) => document.createTextNode(content);
 
 const updateRepositoriesList = (repos) => {
 	const repositoriesList = document.getElementById("repositoriesList");
-
-	console.log(`repositoriesList`, repositoriesList);
 
 	repos &&
 		repos.map &&
@@ -38,7 +34,7 @@ const updateRepositoriesList = (repos) => {
 			let newListItem = createNewListItem();
 			if (repo.has_pages) {
 				let newLink = createNewLink(
-					`https://grazzianixf.github.io/${repo.name}`,
+					`${URL_GITHUB_IO}/${repo.name}`,
 					repo.name
 				);
 
@@ -53,20 +49,37 @@ const updateRepositoriesList = (repos) => {
 		});
 };
 
-const loadData = () => {
-	let url = "https://api.github.com/users/grazzianixf/repos";
+const handleError = (msg, error) => {
+	console.error(error);
 
-	startLoading("Processando...");
+	let messageError = msg + " " + (error?.message ? error?.message : error);
+
+	updateMessage(messageError);
+};
+
+const handleResponse = (response) => {
+	if (response.status !== 200) {
+		console.log(`Response Status: `, response.status);
+
+      // TODO tratar caso não seja json
+		return response.json().then((result) => Promise.reject(result));
+	}
+
+	return response.json();
+};
+
+const loadData = () => {
+	let url = URL_REPOS;
+
+	updateMessage(MSG_UPDATE_REPOSITORIES_LIST);
 
 	fetch(url)
-		.then((response) => response.json())
+		.then((response) => handleResponse(response))
 		.then((repos) => {
-			// repos && repos.map && repos.map(repo => console.log(repo.name));
 			updateRepositoriesList(repos);
-			stopLoading();
-		});
-
-	// TODO implementar o catch para exibir no responseBody os erros vindos  no response caso o status da response seja diferente da faixa 200
+			updateMessage("");
+		})
+		.catch((error) => handleError(MSG_ERROR_UPDATE_REPOSITORIES_LIST, error));
 };
 
 const setupEvents = (_) => {
