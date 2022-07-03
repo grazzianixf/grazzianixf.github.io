@@ -39,6 +39,9 @@ const updateRepositoriesList = (repos) => {
 	repos &&
 		repos.map &&
 		repos.map((repo) => {
+			if (repo.archived || repo.disabled) {
+				return;
+			}
 			let newListItem = createNewListItem();
 
 			let newDivListItem = createNewDivListItem();
