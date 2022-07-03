@@ -1,5 +1,8 @@
-const URL_REPOS = "https://api.github.com/users/grazzianixf/repos";
-const URL_GITHUB_IO = "https://grazzianixf.github.io";
+const GITHUB_USERNAME = "grazzianixf"
+
+const URL_REPOS = `https://api.github.com/users/${GITHUB_USERNAME}/repos`;
+const URL_GITHUB_IO = `https://${GITHUB_USERNAME}.github.io`;
+const URL_GITHUB = `https://github.com/${GITHUB_USERNAME}`;
 const MSG_UPDATE_REPOSITORIES_LIST = "Atualizando lista de repositórios...";
 const MSG_ERROR_UPDATE_REPOSITORIES_LIST =
 	"Erro ao atualizar lista de repositórios.";
@@ -52,12 +55,16 @@ const updateRepositoriesList = (repos) => {
 			newDivListItem.appendChild(newText);
 
 			if (repo.has_pages) {
-				let newLink = createNewLink(`${URL_GITHUB_IO}/${repo.name}`);
+				let linkPage = createNewLink(`${URL_GITHUB_IO}/${repo.name}`);
+				linkPage.appendChild(createIconLink());
 
-				newLink.appendChild(createIconLink());
-
-				newDivListItem.appendChild(newLink);
+				newDivListItem.appendChild(linkPage);
 			}
+
+         let linkRepo = createNewLink(`${URL_GITHUB}/${repo.name}`);
+         linkRepo.appendChild(createIconLink());
+
+         newDivListItem.appendChild(linkRepo);         
 
 			repositoriesList.appendChild(newListItem);
 		});
