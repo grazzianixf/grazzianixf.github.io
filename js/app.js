@@ -1,4 +1,4 @@
-const GITHUB_USERNAME = "grazzianixf"
+const GITHUB_USERNAME = "grazzianixf";
 
 const URL_REPOS = `https://api.github.com/users/${GITHUB_USERNAME}/repos`;
 const URL_GITHUB_IO = `https://${GITHUB_USERNAME}.github.io`;
@@ -17,7 +17,34 @@ const createNewDivListItem = () => {
 	return div;
 };
 
-const createNewListItem = () => document.createElement("li");
+const createNewListItem = repo => {
+   let newListItem = document.createElement("li");
+
+   let newDivListItem = createNewDivListItem();
+   newListItem.appendChild(newDivListItem);
+
+   let newText = createText(repo.name);
+
+   newDivListItem.appendChild(newText);
+
+   let divInterna = document.createElement("div");
+
+   if (repo.has_pages) {
+      let linkPage = createNewLink(`${URL_GITHUB_IO}/${repo.name}`);
+      linkPage.appendChild(createIconLink("Page"));
+
+      divInterna.appendChild(linkPage);
+   }
+
+   let linkRepo = createNewLink(`${URL_GITHUB}/${repo.name}`);
+   linkRepo.appendChild(createIconLink("Repo"));
+
+   divInterna.appendChild(linkRepo);
+
+   newDivListItem.appendChild(divInterna);   
+
+   return newListItem;
+}
 
 const createNewLink = (href) => {
 	let newLink = document.createElement("a");
@@ -29,9 +56,10 @@ const createNewLink = (href) => {
 
 const createText = (content) => document.createTextNode(content);
 
-const createIconLink = (_) =>
+const createIconLink = (title) =>
 	Object.assign(document.createElement("img"), {
 		src: "assets/arrow-square-out-fill.png",
+      title, 
 		width: "20",
 		height: "20",
 	});
@@ -45,26 +73,8 @@ const updateRepositoriesList = (repos) => {
 			if (repo.archived || repo.disabled) {
 				return;
 			}
-			let newListItem = createNewListItem();
 
-			let newDivListItem = createNewDivListItem();
-			newListItem.appendChild(newDivListItem);
-
-			let newText = createText(repo.name);
-
-			newDivListItem.appendChild(newText);
-
-			if (repo.has_pages) {
-				let linkPage = createNewLink(`${URL_GITHUB_IO}/${repo.name}`);
-				linkPage.appendChild(createIconLink());
-
-				newDivListItem.appendChild(linkPage);
-			}
-
-         let linkRepo = createNewLink(`${URL_GITHUB}/${repo.name}`);
-         linkRepo.appendChild(createIconLink());
-
-         newDivListItem.appendChild(linkRepo);         
+			let newListItem = createNewListItem(repo);
 
 			repositoriesList.appendChild(newListItem);
 		});
@@ -90,11 +100,9 @@ const handleDefaultResponse = (response) => {
 };
 
 const loadData = () => {
-	let url = URL_REPOS;
-
 	updateMessage(MSG_UPDATE_REPOSITORIES_LIST);
 
-	fetch(url)
+	fetch(URL_REPOS)
 		.then((response) => handleDefaultResponse(response))
 		.then((repos) => {
 			updateRepositoriesList(repos);
